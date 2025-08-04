@@ -125,7 +125,7 @@ const InputForm = () => {
             variant="contained"
             onClick={handleAdd}
             sx={{ height: "100%", backgroundColor: "#1976d2" }}
-            size={isMobile ? "small" : "medium"}
+           
           >
             ➕ Add
           </Button>
@@ -138,6 +138,7 @@ const InputForm = () => {
             color="success"
             onClick={handleFinalize}
             sx={{ height: "100%" }}
+             size={isMobile ? "small" : "medium"}
           >
             ✅ Finalize All
           </Button>
