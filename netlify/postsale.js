@@ -10,7 +10,7 @@ exports.handler = async function (event, context) {
     const data = JSON.parse(event.body);
     const client = await MongoClient.connect(uri);
     const db = client.db("test");
-    const result = await db.collection("sale").insertOne(data);
+    const result = await db.collection("sales").insertOne(data);
 
     client.close();
 

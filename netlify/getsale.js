@@ -9,7 +9,7 @@ exports.handler = async function (event, context) {
   try {
     const client = await MongoClient.connect(uri);
     const db = client.db("test");
-    const sales = await db.collection("sale").find().toArray();
+    const sales = await db.collection("sales").find().toArray();
     client.close();
 
     return {
