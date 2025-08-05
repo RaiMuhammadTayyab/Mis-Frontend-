@@ -1,22 +1,20 @@
+require('dotenv').config();
 const { MongoClient } = require('mongodb');
-require('dotenv').config(); // use only in local dev
 const uri = process.env.MONGODB_URI;
 exports.handler = async function (event, context) {
-  if (event.httpMethod !== 'POST') {
+  if (event.httpMethod !== 'GET') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
   try {
-    const data = JSON.parse(event.body);
     const client = await MongoClient.connect(uri);
     const db = client.db("test");
-    const result = await db.collection("sales").insertOne(data);
-
+    const sales = await db.collection("sales").find().toArray();
     client.close();
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "Sale recorded", id: result.insertedId }),
+      body: JSON.stringify(sales),
     };
   } catch (error) {
     return { statusCode: 500, body: "Error: " + error.message };
