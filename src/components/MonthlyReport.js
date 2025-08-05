@@ -89,45 +89,61 @@ console.log(report)
       </Paper>
 
       <Paper elevation={3} sx={{ p: 2, backgroundColor: "#ffffff" }}>
-        {selectedDate && selectedEntry ? (
-          <>
-            <Typography
-              variant="h6"
-              sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, mb: 2 }}
-            >
-              📅 {selectedEntry.date} – Time-wise Report
-            </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={selectedEntry.times}>
-                <XAxis dataKey="time" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="profit" fill="#4caf50" name="Profit" />
-                <Bar dataKey="items" fill="#1976d2" name="Items Sold" />
-              </BarChart>
-            </ResponsiveContainer>
-          </>
-        ) : (
-          <>
-            <Typography
-              variant="h6"
-              sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, mb: 2 }}
-            >
-              📅 All Dates – Summary View
-            </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={summaryData}>
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="profit" fill="#4caf50" name="Profit" />
-                <Bar dataKey="items" fill="#1976d2" name="Items Sold" />
-              </BarChart>
-            </ResponsiveContainer>
-          </>
-        )}
+       {selectedDate && selectedEntry ? (
+  <>
+    <Typography
+      variant="h6"
+      sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, mb: 2 }}
+    >
+      📅 {selectedEntry.date} – Summary
+    </Typography>
+    <Box sx={{ px: 2, py: 1 }}>
+      <Typography variant="body1" sx={{ mb: 1 }}>
+        <strong>Total Profit:</strong>{" "}
+        {Array.isArray(selectedEntry.times)
+          ? selectedEntry.times.reduce((sum, t) => sum + t.profit, 0)
+          : 0}
+      </Typography>
+      <Typography variant="body1">
+        <strong>Total Items Sold:</strong>{" "}
+        {Array.isArray(selectedEntry.times)
+          ? selectedEntry.times.reduce((sum, t) => sum + t.items, 0)
+          : 0}
+      </Typography>
+    </Box>
+  </>
+) : (
+  <>
+    <Typography
+      variant="h6"
+      sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, mb: 2 }}
+    >
+      📅 All Dates – Summary View
+    </Typography>
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={summaryData}>
+        <XAxis dataKey="date" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="profit" fill="#4caf50" name="Profit" />
+        <Bar dataKey="items" fill="#1976d2" name="Items Sold" />
+      </BarChart>
+    </ResponsiveContainer>
+    <Box sx={{ mt: 2 }}>
+      <Typography variant="body1">
+        <strong>Total Profit (All Dates):</strong>{" "}
+        {summaryData.reduce((sum, d) => sum + d.profit, 0)}
+      </Typography>
+      <Typography variant="body1">
+        <strong>Total Items Sold (All Dates):</strong>{" "}
+        {summaryData.reduce((sum, d) => sum + d.items, 0)}
+      </Typography>
+    </Box>
+  </>
+)}
+
+       
       </Paper>
 
       <Box textAlign="center" mt={4}>
