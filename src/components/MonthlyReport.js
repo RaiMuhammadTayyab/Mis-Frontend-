@@ -73,9 +73,6 @@ const MonthlyReport = () => {
 
   setSummaryData(result); // This updates your chart and list
 };
-
- console.log("Filtered product items:", productItems);
-console.log("Grouped summary:", result);
   
   const handleDateChange = (e) => setSelectedDate(e.target.value);
   const handleBack = () => navigate("/");
