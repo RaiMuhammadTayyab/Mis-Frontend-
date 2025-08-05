@@ -42,42 +42,40 @@ const MonthlyReport = () => {
 
     fetchReport();
   }, []);
-const processData = (data) => {
-  const grouped = {};
 
-  data.forEach((sale) => {
-    const dateOnly = new Date(sale.date).toISOString().split("T")[0];
+  const processData = (data) => {
+  // Find the shared date from the last object
+  const dateEntry = data.find((item) => item.date);
+  const dateOnly = new Date(dateEntry.date).toISOString().split("T")[0];
 
-    if (!grouped[dateOnly]) {
-      grouped[dateOnly] = { items: 0, profit: 0 };
-    }
+  const grouped = {
+    [dateOnly]: { items: 0, profit: 0 },
+  };
 
-    const totalSaleProfit = sale.items.reduce((sum, item) => {
-      const price = Number(item.price ?? 0);
-      const cost = Number(item.cost ?? 0);
-      const qty = Number(item.qty ?? 0);
-      const profit = (price - cost) * qty;
-      return sum + profit;
-    }, 0);
+  // Filter out only product entries
+  const productItems = data.filter((item) => item.price !== undefined);
 
-    const totalItems = sale.items.reduce(
-      (sum, item) => sum + Number(item.qty ?? 0),
-      0
-    );
+  productItems.forEach((item) => {
+    const price = Number(item.price ?? 0);
+    const cost = Number(item.cost ?? 0);
+    const qty = Number(item.quantity ?? 0);
+    const profit = (price - cost) * qty;
 
-    grouped[dateOnly].profit += totalSaleProfit;
-    grouped[dateOnly].items += totalItems;
+    grouped[dateOnly].items += qty;
+    grouped[dateOnly].profit += profit;
   });
 
+  // Convert to array for chart or list display
   const result = Object.entries(grouped).map(([date, values]) => ({
     date,
     ...values,
   }));
 
-  setSummaryData(result);
+  setSummaryData(result); // This updates your chart and list
 };
 
-  
+ console.log("Filtered product items:", productItems);
+console.log("Grouped summary:", result);
   
   const handleDateChange = (e) => setSelectedDate(e.target.value);
   const handleBack = () => navigate("/");
