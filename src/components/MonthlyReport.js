@@ -42,36 +42,43 @@ const MonthlyReport = () => {
 
     fetchReport();
   }, []);
+const processData = (data) => {
+  const grouped = {};
 
-  const processData = (data) => {
-    const grouped = {};
+  data.forEach((sale) => {
+    const dateOnly = new Date(sale.date).toISOString().split("T")[0];
 
-    data.forEach((sale) => {
-      const dateOnly = new Date(sale.date).toISOString().split("T")[0];
+    if (!grouped[dateOnly]) {
+      grouped[dateOnly] = { items: 0, profit: 0 };
+    }
 
-      if (!grouped[dateOnly]) {
-        grouped[dateOnly] = { items: 0, profit: 0 };
-      }
+    const totalSaleProfit = sale.items.reduce((sum, item) => {
+      const price = Number(item.price ?? 0);
+      const cost = Number(item.cost ?? 0);
+      const qty = Number(item.qty ?? 0);
+      const profit = (price - cost) * qty;
+      return sum + profit;
+    }, 0);
 
-      const totalSaleProfit = sale.items.reduce((sum, item) => {
-        const profit = (item.price - (item.cost || 0)) * item.qty;
-        return sum + profit;
-      }, 0);
+    const totalItems = sale.items.reduce(
+      (sum, item) => sum + Number(item.qty ?? 0),
+      0
+    );
 
-      const totalItems = sale.items.reduce((sum, item) => sum + item.qty, 0);
+    grouped[dateOnly].profit += totalSaleProfit;
+    grouped[dateOnly].items += totalItems;
+  });
 
-      grouped[dateOnly].profit += totalSaleProfit;
-      grouped[dateOnly].items += totalItems;
-    });
+  const result = Object.entries(grouped).map(([date, values]) => ({
+    date,
+    ...values,
+  }));
 
-    const result = Object.entries(grouped).map(([date, values]) => ({
-      date,
-      ...values,
-    }));
+  setSummaryData(result);
+};
 
-    setSummaryData(result);
-  };
-
+  
+  
   const handleDateChange = (e) => setSelectedDate(e.target.value);
   const handleBack = () => navigate("/");
 
