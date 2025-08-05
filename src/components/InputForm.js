@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext,useRef } from "react";
 import { TransactionContext } from "../context/TransactionContext";
 import {
   TextField,
@@ -23,10 +23,29 @@ const InputForm = () => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+const brandRef = useRef();
+  const priceRef = useRef();
+  const costRef = useRef();
+  const quantityRef = useRef();
+  const customerRef = useRef();
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
 
+
+
+
+  const handleChange = (e) =>{
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  const jumpToNext = () => {
+      if (name === "brand" && value.length >= 3) priceRef.current?.focus();
+      if (name === "price" && value.length >= 3) costRef.current?.focus();
+      if (name === "cost" && value.length >= 3) quantityRef.current?.focus();
+      if (name === "quantity" && value.length >= 2) customerRef.current?.focus();
+    };
+
+    jumpToNext();
+  
+  }
   const handleAdd = () => {
     const { brand, price, cost, quantity, customer } = form;
     if (!brand || !price || !cost || !quantity || !customer) return;
