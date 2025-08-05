@@ -23,15 +23,12 @@ const InputForm = () => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  
 const brandRef = useRef();
   const priceRef = useRef();
   const costRef = useRef();
   const quantityRef = useRef();
   const customerRef = useRef();
-
-
-
-
 
   const handleChange = (e) =>{
     const { name, value } = e.target;
@@ -68,6 +65,7 @@ const brandRef = useRef();
       quantity: "",
       customer: "",
     });
+    setTimeout(() => brandRef.current?.focus(), 50);
   };
 
   const handleFinalize = async () => {
