@@ -23,6 +23,154 @@ import {
 } from "recharts";
 
 const MonthlyReport = () => {
+  const [summaryData, setSummaryData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState("");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchReport = async () => {
+      try {
+        const res = await fetch("/.netlify/functions/getsale");
+        const data = await res.json();
+        processData(data);
+      } catch (err) {
+        alert("❌ Failed to fetch report.");
+      }
+    };
+
+    fetchReport();
+  }, []);
+
+  const processData = (data) => {
+    const grouped = {};
+
+    data.forEach((sale) => {
+      const dateOnly = new Date(sale.date).toISOString().split("T")[0];
+
+      if (!grouped[dateOnly]) {
+        grouped[dateOnly] = { items: 0, profit: 0 };
+      }
+
+      const totalSaleProfit = sale.items.reduce((sum, item) => {
+        const profit = (item.price - (item.cost || 0)) * item.qty;
+        return sum + profit;
+      }, 0);
+
+      const totalItems = sale.items.reduce((sum, item) => sum + item.qty, 0);
+
+      grouped[dateOnly].profit += totalSaleProfit;
+      grouped[dateOnly].items += totalItems;
+    });
+
+    const result = Object.entries(grouped).map(([date, values]) => ({
+      date,
+      ...values,
+    }));
+
+    setSummaryData(result);
+  };
+
+  const handleDateChange = (e) => setSelectedDate(e.target.value);
+  const handleBack = () => navigate("/");
+
+  const filteredData = selectedDate
+    ? summaryData.filter((entry) => entry.date === selectedDate)
+    : summaryData;
+
+  return (
+    <Box sx={{ px: { xs: 2, sm: 4 }, py: { xs: 3, sm: 5 } }}>
+      <Paper elevation={4} sx={{ p: 3, backgroundColor: "#f3f4f6", mb: 4 }}>
+        <Typography
+          variant="h5"
+          align="center"
+          gutterBottom
+          sx={{ fontWeight: 600, color: "#1976d2" }}
+        >
+          📊 Daily Sales Summary
+        </Typography>
+
+        <FormControl fullWidth sx={{ maxWidth: 300, mt: 2 }}>
+          <InputLabel>Select a Date</InputLabel>
+          <Select
+            value={selectedDate}
+            label="Select a Date"
+            onChange={handleDateChange}
+            size={isMobile ? "small" : "medium"}
+          >
+            <MenuItem value="">All Dates</MenuItem>
+            {summaryData.map((entry) => (
+              <MenuItem key={entry.date} value={entry.date}>
+                {entry.date}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Paper>
+
+      <Paper elevation={3} sx={{ p: 2, backgroundColor: "#ffffff" }}>
+        <Typography
+          variant="h6"
+          sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, mb: 2 }}
+        >
+          {selectedDate
+            ? `📅 Summary for ${selectedDate}`
+            : "📅 All Dates – Summary View"}
+        </Typography>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={filteredData}>
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="profit" fill="#4caf50" name="Profit" />
+            <Bar dataKey="items" fill="#1976d2" name="Items Sold" />
+          </BarChart>
+        </ResponsiveContainer>
+      </Paper>
+
+      <Box textAlign="center" mt={4}>
+        <Button variant="outlined" color="primary" onClick={handleBack}>
+          ⬅️ Back to Home
+        </Button>
+      </Box>
+    </Box>
+  );
+};
+
+export default MonthlyReport;
+
+
+
+
+
+
+/*import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  useTheme,
+  useMediaQuery,
+  Button,
+  Paper,
+} from "@mui/material";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+
+const MonthlyReport = () => {
   const [report, setReport] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
 console.log(report)
@@ -50,7 +198,6 @@ console.log(report)
 
   const dateOptions = report.map((entry) => entry.date);
   const selectedEntry = report.find((entry) => entry.date === selectedDate);
-
   const summaryData = report.map((entry) => {
     const times = Array.isArray(entry.times) ? entry.times : [];
     const totalProfit = times.reduce((sum, t) => sum + t.profit, 0);
@@ -89,61 +236,45 @@ console.log(report)
       </Paper>
 
       <Paper elevation={3} sx={{ p: 2, backgroundColor: "#ffffff" }}>
-       {selectedDate && selectedEntry ? (
-  <>
-    <Typography
-      variant="h6"
-      sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, mb: 2 }}
-    >
-      📅 {selectedEntry.date} – Summary
-    </Typography>
-    <Box sx={{ px: 2, py: 1 }}>
-      <Typography variant="body1" sx={{ mb: 1 }}>
-        <strong>Total Profit:</strong>{" "}
-        {Array.isArray(selectedEntry.times)
-          ? selectedEntry.times.reduce((sum, t) => sum + t.profit, 0)
-          : 0}
-      </Typography>
-      <Typography variant="body1">
-        <strong>Total Items Sold:</strong>{" "}
-        {Array.isArray(selectedEntry.times)
-          ? selectedEntry.times.reduce((sum, t) => sum + t.items, 0)
-          : 0}
-      </Typography>
-    </Box>
-  </>
-) : (
-  <>
-    <Typography
-      variant="h6"
-      sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, mb: 2 }}
-    >
-      📅 All Dates – Summary View
-    </Typography>
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={summaryData}>
-        <XAxis dataKey="date" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="profit" fill="#4caf50" name="Profit" />
-        <Bar dataKey="items" fill="#1976d2" name="Items Sold" />
-      </BarChart>
-    </ResponsiveContainer>
-    <Box sx={{ mt: 2 }}>
-      <Typography variant="body1">
-        <strong>Total Profit (All Dates):</strong>{" "}
-        {summaryData.reduce((sum, d) => sum + d.profit, 0)}
-      </Typography>
-      <Typography variant="body1">
-        <strong>Total Items Sold (All Dates):</strong>{" "}
-        {summaryData.reduce((sum, d) => sum + d.items, 0)}
-      </Typography>
-    </Box>
-  </>
-)}
-
-       
+        {selectedDate && selectedEntry ? (
+          <>
+            <Typography
+              variant="h6"
+              sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, mb: 2 }}
+            >
+              📅 {selectedEntry.date} – Time-wise Report
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={selectedEntry.times}>
+                <XAxis dataKey="time" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="profit" fill="#4caf50" name="Profit" />
+                <Bar dataKey="items" fill="#1976d2" name="Items Sold" />
+              </BarChart>
+            </ResponsiveContainer>
+          </>
+        ) : (
+          <>
+            <Typography
+              variant="h6"
+              sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, mb: 2 }}
+            >
+              📅 All Dates – Summary View
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={summaryData}>
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="profit" fill="#4caf50" name="Profit" />
+                <Bar dataKey="items" fill="#1976d2" name="Items Sold" />
+              </BarChart>
+            </ResponsiveContainer>
+          </>
+        )}
       </Paper>
 
       <Box textAlign="center" mt={4}>
@@ -156,7 +287,7 @@ console.log(report)
 };
 
 export default MonthlyReport;
-
+*/
 
 
 

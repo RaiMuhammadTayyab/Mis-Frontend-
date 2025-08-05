@@ -66,7 +66,7 @@ const InputForm = () => {
         cost,
         quantity,
       })),
-      time: new Date().toLocaleTimeString(),
+      //time: new Date().toLocaleTimeString(),
       date: new Date().toLocaleDateString(),
     };
 
