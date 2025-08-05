@@ -25,7 +25,7 @@ import {
 const MonthlyReport = () => {
   const [report, setReport] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
-
+console.log(report)
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
@@ -52,8 +52,9 @@ const MonthlyReport = () => {
   const selectedEntry = report.find((entry) => entry.date === selectedDate);
 
   const summaryData = report.map((entry) => {
-    const totalProfit = entry.times.reduce((sum, t) => sum + t.profit, 0);
-    const totalItems = entry.times.reduce((sum, t) => sum + t.items, 0);
+    const times = Array.isArray(entry.times) ? entry.times : [];
+    const totalProfit = times.reduce((sum, t) => sum + t.profit, 0);
+    const totalItems = times.reduce((sum, t) => sum + t.items, 0);
     return { date: entry.date, profit: totalProfit, items: totalItems };
   });
 
