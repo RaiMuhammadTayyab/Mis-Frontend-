@@ -42,37 +42,46 @@ const MonthlyReport = () => {
 
     fetchReport();
   }, []);
+const processData = (data) => {
+  const grouped = {};
 
-  const processData = (data) => {
-  // Find the shared date from the last object
-  const dateEntry = data.find((item) => item.date);
-  const dateOnly = new Date(dateEntry.date).toISOString().split("T")[0];
+  data.forEach((sale) => {
+    const dateOnly = new Date(sale.date).toISOString().split("T")[0];
 
-  const grouped = {
-    [dateOnly]: { items: 0, profit: 0 },
-  };
+    // Initialize the date group if it doesn't exist
+    if (!grouped[dateOnly]) {
+      grouped[dateOnly] = { profit: 0, items: 0 };
+    }
 
-  // Filter out only product entries
-  const productItems = data.filter((item) => item.price !== undefined);
+    // Make sure `items` exists and is an array
+    if (Array.isArray(sale.items)) {
+      const totalProfit = sale.items.reduce((sum, item) => {
+        const price = Number(item.price ?? 0);
+        const cost = Number(item.cost ?? 0);
+        const qty = Number(item.quantity ?? 0);
+        return sum + (price - cost) * qty;
+      }, 0);
 
-  productItems.forEach((item) => {
-    const price = Number(item.price ?? 0);
-    const cost = Number(item.cost ?? 0);
-    const qty = Number(item.quantity ?? 0);
-    const profit = (price - cost) * qty;
+      const totalItems = sale.items.reduce((sum, item) => {
+        return sum + Number(item.quantity ?? 0);
+      }, 0);
 
-    grouped[dateOnly].items += qty;
-    grouped[dateOnly].profit += profit;
+      grouped[dateOnly].profit += totalProfit;
+      grouped[dateOnly].items += totalItems;
+    }
   });
 
-  // Convert to array for chart or list display
+  // Convert grouped object into array
   const result = Object.entries(grouped).map(([date, values]) => ({
     date,
     ...values,
   }));
-
-  setSummaryData(result); // This updates your chart and list
+console.log("Processed summary data:", result);
+  setSummaryData(result); // For chart and list
 };
+
+  
+  
   
   const handleDateChange = (e) => setSelectedDate(e.target.value);
   const handleBack = () => navigate("/");
@@ -131,7 +140,6 @@ const MonthlyReport = () => {
           </BarChart>
         </ResponsiveContainer>
       </Paper>
-
       <Box textAlign="center" mt={4}>
         <Button variant="outlined" color="primary" onClick={handleBack}>
           ⬅️ Back to Home
