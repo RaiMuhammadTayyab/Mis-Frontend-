@@ -59,44 +59,48 @@ const [focusedIndex, setFocusedIndex] = useState(0);
 
     // Move focus back to first input after add
   };
-
-  
-
   const handleFinalize = async () => {
     if (state.transactions.length === 0) {
       alert("🚫 No transactions to finalize.");
       return;
     }
-
-    const customer = state.transactions[0].customer || "Unknown";
-    const finalPayload = {
-      customer,
-      items: state.transactions.map(({ brand, price, cost, quantity }) => ({
+const grouped = state.transactions.reduce((acc, tx) => {
+    if (!acc[tx.customer]) acc[tx.customer] = [];
+    acc[tx.customer].push(tx);
+    return acc;
+  }, {});
+    //const customer = state.transactions[0].customer || "Unknown";
+  try { 
+    for (const customer in grouped) {
+      const items = grouped[customer].map(({ brand, price, cost, quantity }) => ({
         brand,
         price,
         cost,
         quantity,
-      })),
-      date: new Date().toLocaleDateString(),
+      }));
+    
+    const finalPayload = {
+      customer,
+      items,
+      date: new Date().toISOString().split("T")[0]
     };
 
-    try {
       const response = await fetch("/.netlify/functions/postsale", {
         method: "POST",
         body: JSON.stringify(finalPayload),
       });
 
-      if (response.ok) {
-        alert("✅ Transactions saved to database!");
+      if (!response.ok) {
+        alert(`❌ Failed to save transactions for ${customer}.`);
         dispatch({ type: "CLEAR_TRANSACTIONS" });
-      } else {
-        alert("❌ Failed to save transactions.");
-      }
+      } }
+    alert("✅ All customer transactions saved!");
+    dispatch({ type: "CLEAR_TRANSACTIONS" });
     } catch (error) {
       console.error("❌ Netlify Function Error:", error);
       alert("❌ Error connecting to database.");
     }
-  };
+  }
 
   return (
     <Paper
