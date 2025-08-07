@@ -33,7 +33,7 @@ useEffect(() => {
       try {
         const res = await fetch("/.netlify/functions/getsale");
         const data = await res.json();
-        console.log(data)
+        setData(data)
   
       } catch (err) {
         alert("❌ Failed to fetch report.");
@@ -56,9 +56,6 @@ console.log(uniquenames)
   };
 });
 console.log(Brands)
-
-
-
 
 
   const theme = useTheme();
