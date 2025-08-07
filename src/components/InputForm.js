@@ -152,6 +152,9 @@ return (
           <Grid item xs={12} sm={6} md={4} key={field}>
             {isAutoCompleteField ? (
               <Autocomplete
+               variant="outlined"
+                 fullWidth
+                size="small"
                 freeSolo
                 options={options}
                 value={form[field] || ""}
