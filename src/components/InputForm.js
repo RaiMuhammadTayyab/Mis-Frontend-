@@ -124,136 +124,133 @@ const grouped = state.transactions.reduce((acc, tx) => {
       alert("❌ Error connecting to database.");
     }
   }
-
-  return (
-    <Paper
-      elevation={6}
-      sx={{
-        p: 3,
-        mt: 4,
-        backgroundColor: "#f0f4ff",
-        borderRadius: 3,
-      }}
-    >
-      <Typography variant="h6" gutterBottom fontWeight="bold" color="primary">
-        💼 Add New Transaction
-      </Typography>
-
-      <Grid container spacing={2}>
-        {fields.map((field, index) => (
-          <Grid item xs={12} sm={6} md={4} key={field}>
-         {field === 'customer' ? (
-        <Autocomplete
-          freeSolo
-          options={uniquenames} // <-- array of unique customer names
-          value={form.customer}
-          onChange={(e, newValue) => {
-            setForm((prev) => ({ ...prev, customer: newValue }));
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Customer"
-              name="customer"
-              color="secondary"
-           variant="outlined"
-        fullWidth
-        size="small"
- 
-            />
-          )}
-  
-        />
-      ) : (
-            <TextField
-              fullWidth
-              label={field.charAt(0).toUpperCase() + field.slice(1)}
-              name={field}
-              value={form[field]}
-              onFocus={() => setFocusedIndex(index)}
-              inputRef={(el) => (inputRefs.current[index] = el)}
-              onChange={handleChange}
-              type={["price", "cost", "quantity"].includes(field) ? "number" : "text"}
-              size="small"
-              variant="outlined"
-              color="secondary"
-            />
-              )}
-          </Grid>
-    
-        ))}    
-        
-<Grid item xs={12} sm={6} md={3}>
-  <Button
-    fullWidth
-    variant="outlined"
-    color="primary"
-    onClick={() => {
-      const nextIndex = focusedIndex < fields.length - 1 ? focusedIndex + 1 : 0;
-      inputRefs.current[nextIndex]?.focus();
-      setFocusedIndex(nextIndex);
+return (
+  <Paper
+    elevation={6}
+    sx={{
+      p: 3,
+      mt: 4,
+      backgroundColor: "#f0f4ff",
+      borderRadius: 3,
     }}
-    sx={{ height: "100%" }}
-    
   >
-    ➡️ Next
-  </Button>
-</Grid>
+    <Typography variant="h6" gutterBottom fontWeight="bold" color="primary">
+      💼 Add New Transaction
+    </Typography>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleAdd}
-            sx={{ height: "100%", backgroundColor: "#1976d2" }}
-          >
-            ➕ Add
-          </Button>
-        </Grid>
+    <Grid container spacing={2}>
+      {fields.map((field, index) => {
+        const isAutoCompleteField = field === "customer" || field === "brand";
+        const options =
+          field === "customer"
+            ? uniquenames
+            : field === "brand"
+            ? uniqueBrands
+            : [];
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Button
-            fullWidth
-            variant="outlined"
-            color="success"
-            onClick={handleFinalize}
-            sx={{ height: "100%" }}
-            size={isMobile ? "small" : "medium"}
-          >
-            ✅ Finalize All
-          </Button>
-        </Grid>
+        return (
+          <Grid item xs={12} sm={6} md={4} key={field}>
+            {isAutoCompleteField ? (
+              <Autocomplete
+                freeSolo
+                options={options}
+                value={form[field] || ""}
+                onChange={(e, newValue) => {
+                  setForm((prev) => ({ ...prev, [field]: newValue }));
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={field.charAt(0).toUpperCase() + field.slice(1)}
+                    name={field}
+                    color="secondary"
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                  />
+                )}
+              />
+            ) : (
+              <TextField
+                fullWidth
+                label={field.charAt(0).toUpperCase() + field.slice(1)}
+                name={field}
+                value={form[field]}
+                onFocus={() => setFocusedIndex(index)}
+                inputRef={(el) => (inputRefs.current[index] = el)}
+                onChange={handleChange}
+                type={
+                  ["price", "cost", "quantity"].includes(field)
+                    ? "number"
+                    : "text"
+                }
+                size="small"
+                variant="outlined"
+                color="secondary"
+              />
+            )}
+          </Grid>
+        );
+      })}
 
-        <Grid item xs={12} md={6}>
-          <Button
-            fullWidth
-            component={Link}
-            to="/report"
-            variant="contained"
-            color="secondary"
-            sx={{ height: "100%" }}
-          >
-            📊 Monthly Summary
-          </Button>
-        </Grid>
+      <Grid item xs={12} sm={6} md={3}>
+        <Button
+          fullWidth
+          variant="outlined"
+          color="primary"
+          onClick={() => {
+            const nextIndex =
+              focusedIndex < fields.length - 1 ? focusedIndex + 1 : 0;
+            inputRefs.current[nextIndex]?.focus();
+            setFocusedIndex(nextIndex);
+          }}
+          sx={{ height: "100%" }}
+        >
+          ➡️ Next
+        </Button>
       </Grid>
-    </Paper>
-  );
-};
 
-export default InputForm;
+      <Grid item xs={12} sm={6} md={3}>
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={handleAdd}
+          sx={{ height: "100%", backgroundColor: "#1976d2" }}
+        >
+          ➕ Add
+        </Button>
+      </Grid>
 
+      <Grid item xs={12} sm={6} md={3}>
+        <Button
+          fullWidth
+          variant="outlined"
+          color="success"
+          onClick={handleFinalize}
+          sx={{ height: "100%" }}
+          size={isMobile ? "small" : "medium"}
+        >
+          ✅ Finalize All
+        </Button>
+      </Grid>
 
-
-
-
-
-
-
-
-
-
-
+      <Grid item xs={12} md={6}>
+        <Button
+          fullWidth
+          component={Link}
+          to="/report"
+          variant="contained"
+          color="secondary"
+          sx={{ height: "100%" }}
+        >
+          📊 Monthly Summary
+        </Button>
+      </Grid>
+    </Grid>
+  </Paper>
+);
+}
+export default InputForm
 
 /*import React, { useState, useContext } from "react";
 import { TransactionContext } from "../context/TransactionContext";
