@@ -2,7 +2,8 @@ import { createContext, useReducer, useContext } from 'react';
 import reducer from './reducer';
 
 const initialState = {
-  transactions: []
+  transactions: [],
+  uniqueCustomerNames: [],
 };
 
 export const TransactionContext = createContext();

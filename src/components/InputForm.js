@@ -1,6 +1,7 @@
 
 import React, { useState, useContext, useRef } from "react";
 import { TransactionContext } from "../context/TransactionContext";
+
 import {
   TextField,
   Button,
@@ -9,19 +10,21 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Autocomplete
 } from "@mui/material";
 import { Link } from "react-router-dom";
 
-const fields = ["brand", "price", "cost", "quantity", "customer"];
-
+const fields = ["brand", "price", "cost", "quantity", "customer"]; 
 const InputForm = () => {
   const { state, dispatch } = useContext(TransactionContext);
+  const {customerName}=state.uniqueCustomerNames || []
   const [form, setForm] = useState({
     brand: "",
     price: "",
     cost: "",
     quantity: "",
     customer: "",
+    newcustomer:""
   });
 const [focusedIndex, setFocusedIndex] = useState(0);
   const inputRefs = useRef([]);
@@ -35,7 +38,7 @@ const [focusedIndex, setFocusedIndex] = useState(0);
   };
 
   const handleAdd = () => {
-    const { brand, price, cost, quantity, customer } = form;
+    const { brand, price, cost, quantity, customer} = form;
     if (!brand || !price || !cost || !quantity || !customer) return;
 
     dispatch({
@@ -45,7 +48,7 @@ const [focusedIndex, setFocusedIndex] = useState(0);
         price: +price,
         cost: +cost,
         quantity: +quantity,
-        customer,
+        
       },
     });
 
@@ -118,7 +121,30 @@ const grouped = state.transactions.reduce((acc, tx) => {
 
       <Grid container spacing={2}>
         {fields.map((field, index) => (
-          <Grid item xs={12} sm={6} md={2.4} key={field}>
+          <Grid item xs={12} sm={6} md={4} key={field}>
+         {field === 'customer' ? (
+        <Autocomplete
+          freeSolo
+          options={customerName} // <-- array of unique customer names
+          value={form.customer}
+          onChange={(e, newValue) => {
+            setForm((prev) => ({ ...prev, customer: newValue }));
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Customer"
+              name="customer"
+              color="secondary"
+           variant="outlined"
+        fullWidth
+        size="small"
+ 
+            />
+          )}
+  
+        />
+      ) : (
             <TextField
               fullWidth
               label={field.charAt(0).toUpperCase() + field.slice(1)}
@@ -132,9 +158,12 @@ const grouped = state.transactions.reduce((acc, tx) => {
               variant="outlined"
               color="secondary"
             />
+              )}
           </Grid>
-        ))}
-        <Grid item xs={12} sm={6} md={3}>
+    
+        ))}    
+        
+<Grid item xs={12} sm={6} md={3}>
   <Button
     fullWidth
     variant="outlined"
