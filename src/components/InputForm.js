@@ -17,7 +17,7 @@ import { Link } from "react-router-dom";
 const fields = ["brand", "price", "cost", "quantity", "customer"]; 
 const InputForm = () => {
   const { state, dispatch } = useContext(TransactionContext);
-  const{data,setData}=useState([])
+  const[data,setData]=useState([])
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [form, setForm] = useState({
     brand: "",
@@ -27,7 +27,6 @@ const InputForm = () => {
     customer: "",
     newcustomer:""
   });
-
   const inputRefs = useRef([]);
 useEffect(() => {
     const fetchReport = async () => {
@@ -36,6 +35,9 @@ useEffect(() => {
         const data = await res.json();
         console.log(data)
         setData(data);
+  const allnames = data.map(name => name?.customer || "Unknown");
+  const uniquenames = [...new Set(allnames)]
+console.log(uniquenames)
       } catch (err) {
         alert("❌ Failed to fetch report.");
       }
@@ -46,7 +48,6 @@ useEffect(() => {
 
 const allnames = data.map(name => name?.customer || "Unknown");
 const uniquenames = [...new Set(allnames)]
-
 console.log(uniquenames)
 
   const theme = useTheme();
