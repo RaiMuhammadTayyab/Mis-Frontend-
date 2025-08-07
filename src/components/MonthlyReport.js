@@ -26,7 +26,7 @@ import {
 const MonthlyReport = () => {
   const [summaryData, setSummaryData] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
-  const[customer,setcustomer]=useState([])
+  //const[customer,setcustomer]=useState([])
   const {dispatch}=useTransaction()
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -47,14 +47,15 @@ const MonthlyReport = () => {
     fetchReport();
   }, []);
   
+
 const processData = (data) => {
   const grouped = {};
-
+  const allnames=data.map(name=> name.customer)
+const uniquenames= [...new Set(allnames)]
+dispatch({type: "'UNIQUE_NAMES'", payload:uniquenames });
   data.forEach((sale) => {
     const dateOnly = new Date(sale.date).toISOString().split("T")[0];
-const allnames=sale.map(name=> name.customer)
-const uniquenames= [...new Set(allnames)]
-setcustomer(uniquenames)
+
     // Initialize the date group if it doesn't exist
     if (!grouped[dateOnly]) {
       grouped[dateOnly] = { profit: 0, items: 0 };
@@ -86,7 +87,7 @@ setcustomer(uniquenames)
 console.log("Processed summary data:", result);
   setSummaryData(result); // For chart and list
 };
-dispatch({type: "'UNIQUE_NAMES'", payload:customer });
+
   
   
   
