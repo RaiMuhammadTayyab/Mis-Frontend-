@@ -50,9 +50,22 @@ const MonthlyReport = () => {
 
 const processData = (data) => {
   const grouped = {};
-  const allnames=data.map(name=> name.customer)
-const uniquenames= [...new Set(allnames)]
-dispatch({type: "'UNIQUE_NAMES'", payload:uniquenames });
+   try {
+    if (!Array.isArray(data)) throw new Error("Data must be an array");
+
+    const allnames = data
+      .filter((entry) => entry && entry.customer)
+      .map((entry) => entry.customer);
+
+    const uniquenames = [...new Set(allnames)];
+
+    dispatch({ type: 'UNIQUE_NAMES', payload: uniquenames });
+
+    // Continue with the rest of your processing...
+  } catch (err) {
+    console.error("⚠️ Error in processData:", err);
+  }
+  
   data.forEach((sale) => {
     const dateOnly = new Date(sale.date).toISOString().split("T")[0];
 
