@@ -46,18 +46,9 @@ useEffect(() => {
 const allnames = data.map(name => name?.customer || "Unknown");
   const uniquenames = [...new Set(allnames)]
 console.log(uniquenames)
-  const Brands = data.map((entry) => {
-  const brands = entry.items.map(item => item.brand);
-  const uniqueBrands = [...new Set(brands)];
-
-  return {
-    ...entry,
-    brandList: uniqueBrands, // ⬅️ new array of brands for each customer
-  };
-});
-console.log(Brands)
-
-
+ const newBrands = data.flatMap((entry)=> entry.items.map(item => item.brand));
+  const uniqueBrands = [...new Set(newBrands)];
+console.log(uniqueBrands)
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
