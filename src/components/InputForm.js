@@ -1,5 +1,5 @@
 
-import React, { useState, useContext, useRef } from "react";
+import React, { useEffect,useState, useContext, useRef } from "react";
 import { TransactionContext } from "../context/TransactionContext";
 
 import {
@@ -17,7 +17,8 @@ import { Link } from "react-router-dom";
 const fields = ["brand", "price", "cost", "quantity", "customer"]; 
 const InputForm = () => {
   const { state, dispatch } = useContext(TransactionContext);
-  const {customerName}=state.uniqueCustomerNames || []
+  const{data,setData}=useState([])
+  const [focusedIndex, setFocusedIndex] = useState(0);
   const [form, setForm] = useState({
     brand: "",
     price: "",
@@ -26,8 +27,27 @@ const InputForm = () => {
     customer: "",
     newcustomer:""
   });
-const [focusedIndex, setFocusedIndex] = useState(0);
+
   const inputRefs = useRef([]);
+useEffect(() => {
+    const fetchReport = async () => {
+      try {
+        const res = await fetch("/.netlify/functions/getsale");
+        const data = await res.json();
+        console.log(data)
+        setData(data);
+      } catch (err) {
+        alert("❌ Failed to fetch report.");
+      }
+    };
+
+    fetchReport();
+  }, [setData]);
+
+const allnames = data.map(name => name?.customer || "Unknown");
+const uniquenames = [...new Set(allnames)]
+
+console.log(uniquenames)
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -125,7 +145,7 @@ const grouped = state.transactions.reduce((acc, tx) => {
          {field === 'customer' ? (
         <Autocomplete
           freeSolo
-          options={customerName} // <-- array of unique customer names
+          options={uniquenames} // <-- array of unique customer names
           value={form.customer}
           onChange={(e, newValue) => {
             setForm((prev) => ({ ...prev, customer: newValue }));
