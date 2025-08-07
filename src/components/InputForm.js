@@ -34,10 +34,7 @@ useEffect(() => {
         const res = await fetch("/.netlify/functions/getsale");
         const data = await res.json();
         console.log(data)
-        setData(data);
-  const allnames = data.map(name => name?.customer || "Unknown");
-  const uniquenames = [...new Set(allnames)]
-console.log(uniquenames)
+  
       } catch (err) {
         alert("❌ Failed to fetch report.");
       }
@@ -47,8 +44,22 @@ console.log(uniquenames)
   }, [setData]);
 
 const allnames = data.map(name => name?.customer || "Unknown");
-const uniquenames = [...new Set(allnames)]
+  const uniquenames = [...new Set(allnames)]
 console.log(uniquenames)
+  const Brands = data.map((entry) => {
+  const brands = entry.items.map(item => item.brand);
+  const uniqueBrands = [...new Set(brands)];
+
+  return {
+    ...entry,
+    brandList: uniqueBrands, // ⬅️ new array of brands for each customer
+  };
+});
+console.log(Brands)
+
+
+
+
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
