@@ -1,7 +1,15 @@
-
 [build]
   command = "npm run build"
   publish = "build"
 
 [functions]
   directory = "netlify/functions"
+
+[dev]
+  publish = "build"  # Use "build" if using Create React App, or "dist" for Vite
+  command = "npm start"
+  functions = "netlify/functions"
+  envFiles = [".env"]
+  
+
+

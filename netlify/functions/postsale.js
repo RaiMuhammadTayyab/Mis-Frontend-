@@ -2,7 +2,10 @@ require('dotenv').config();
 const { MongoClient } = require('mongodb');
 // use only in local dev
 const uri = process.env.MONGODB_URI;
+
+
 exports.handler = async function (event, context) {
+ 
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }

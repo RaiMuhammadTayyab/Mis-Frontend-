@@ -1,7 +1,6 @@
 
 import React, { useEffect,useState, useContext, useRef } from "react";
 import { TransactionContext } from "../context/TransactionContext";
-
 import {
   TextField,
   Button,
@@ -13,11 +12,12 @@ import {
   Autocomplete
 } from "@mui/material";
 import { Link } from "react-router-dom";
-
+import "../App.css"; // 
 const fields = ["brand", "price", "cost", "quantity", "customer"]; 
 const InputForm = () => {
   const { state, dispatch } = useContext(TransactionContext);
   const[data,setData]=useState([])
+  const[brands,setBrands]=useState([])
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [form, setForm] = useState({
     brand: "",
@@ -29,26 +29,32 @@ const InputForm = () => {
   });
   const inputRefs = useRef([]);
 useEffect(() => {
-    const fetchReport = async () => {
+    const fetchdata = async () => {
       try {
-        const res = await fetch("/.netlify/functions/getsale");
-        const data = await res.json();
-        setData(data)
+        const res = await fetch("/.netlify/functions/customer");
+       const { customers, brands } = await res.json(); 
+        setData(customers)
+        console.log(brands)
+        setBrands(brands)
   
       } catch (err) {
         alert("❌ Failed to fetch report.");
       }
     };
 
-    fetchReport();
+    fetchdata();
   }, [setData]);
-
-const allnames = data.map(name => name?.customer || "Unknown");
-  const uniquenames = [...new Set(allnames)]
+console.log(data)
+/*const allnames = data.map(name => name?.customer || "Unknown");
+  const uniquenames = [...new Set(allnames.map(item => item.trim().toLowerCase()))].map(item => 
+  item.charAt(0).toUpperCase() + item.slice(1))
 console.log(uniquenames)
  const newBrands = data.flatMap((entry)=> entry.items.map(item => item.brand));
-  const uniqueBrands = [...new Set(newBrands)];
-console.log(uniqueBrands)
+ // const uniqueBrands = [...new Set(newBrands)];
+  const uniqueBrands= [...new Set(newBrands.map(item => item.trim().toLowerCase()))].map(item => 
+  item.charAt(0).toUpperCase() + item.slice(1)
+);
+console.log(uniqueBrands)*/
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -68,7 +74,7 @@ console.log(uniqueBrands)
         price: +price,
         cost: +cost,
         quantity: +quantity,
-        
+        customer,
       },
     });
 
@@ -130,7 +136,7 @@ return (
     sx={{
       p: 3,
       mt: 4,
-      backgroundColor: "#f0f4ff",
+      backgroundColor: "#ebedf5ff",
       borderRadius: 3,
     }}
   >
@@ -143,13 +149,14 @@ return (
         const isAutoCompleteField = field === "customer" || field === "brand";
         const options =
           field === "customer"
-            ? uniquenames
+            ? data
             : field === "brand"
-            ? uniqueBrands
+            ? brands
             : [];
 
         return (
-          <Grid item xs={12} sm={6} md={4} key={field}>
+          <Grid item xs={12} sm={6} md={6} key={field}sx={{ alignItems: "flex-start", display: "flex" }}   >
+            
             {isAutoCompleteField ? (
               <Autocomplete
                variant="outlined"
@@ -161,19 +168,43 @@ return (
                 onChange={(e, newValue) => {
                   setForm((prev) => ({ ...prev, [field]: newValue }));
                 }}
+           onInputChange={(e, newValue) => {
+            setForm((prev) => ({ ...prev, [field]: newValue }));
+  }}
+
                 renderInput={(params) => (
                   <TextField
                     {...params}
+                    inputRef={(el) => {
+      inputRefs.current[index] = el;
+    }}
                     label={field.charAt(0).toUpperCase() + field.slice(1)}
                     name={field}
                     color="secondary"
                     variant="outlined"
                     fullWidth
                     size="small"
+          
+     
+                        sx={{
+            "& .MuiInputBase-root": {
+              height: 40, // match price/cost/quantity
+            },
+          }}
+
                   />
+ 
+                  
+
                 )}
+       
+             
+                
               />
-            ) : (
+           
+           
+            )
+          : (
               <TextField
                 fullWidth
                 label={field.charAt(0).toUpperCase() + field.slice(1)}

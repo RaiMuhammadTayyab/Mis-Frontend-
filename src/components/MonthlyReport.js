@@ -84,7 +84,16 @@ console.log("Processed summary data:", result);
   setSummaryData(result); // For chart and list
 };
 
-  
+  const totals = summaryData.reduce(
+  (acc, { profit, items }) => {
+    acc.totalProfit += profit;
+    acc.totalItems += items;
+    return acc;
+  },
+  { totalProfit: 0, totalItems: 0 }
+);
+
+console.log(totals);
   
   
   const handleDateChange = (e) => setSelectedDate(e.target.value);
@@ -133,8 +142,33 @@ console.log("Processed summary data:", result);
             ? `📅 Summary for ${selectedDate}`
             : "📅 All Dates – Summary View"}
         </Typography>
+
+<Box sx={{ position: "relative", height: 300 }}>
+    {/* Top-left overlay for totals */}
+    <Box
+      sx={{
+        position: "absolute",
+        top: 8,
+        right: 8,
+        background: "rgba(255,255,255,0.8)",
+        p: 1,
+        borderRadius: 1,
+        zIndex: 1
+      }}
+    >
+      <Typography variant="subtitle2" color="primary">
+        Total Profit: {totals.totalProfit}
+      </Typography>
+      <Typography variant="subtitle2" color="secondary">
+        Total Items: {totals.totalItems}
+      </Typography>
+    </Box>
+
+
         <ResponsiveContainer width="100%" height={300}>
+          
           <BarChart data={filteredData}>
+            <Typography>{totals.totalProfit}</Typography>
             <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
@@ -143,6 +177,7 @@ console.log("Processed summary data:", result);
             <Bar dataKey="items" fill="#1976d2" name="Items Sold" />
           </BarChart>
         </ResponsiveContainer>
+        </Box>
       </Paper>
       <Box textAlign="center" mt={4}>
         <Button variant="outlined" color="primary" onClick={handleBack}>

@@ -1,6 +1,8 @@
 require('dotenv').config();
 const { MongoClient } = require('mongodb');
+console.log("🔐 MONGO_URI:", process.env.MONGODB_URI);
 const uri = process.env.MONGODB_URI;
+
 exports.handler = async function (event, context) {
   if (event.httpMethod !== 'GET') {
     return { statusCode: 405, body: 'Method Not Allowed' };
@@ -8,6 +10,7 @@ exports.handler = async function (event, context) {
 
   try {
     const client = await MongoClient.connect(uri);
+    
     const db = client.db("test");
     const sales = await db.collection("sales").find().toArray();
     client.close();
@@ -20,4 +23,3 @@ exports.handler = async function (event, context) {
     return { statusCode: 500, body: "Error: " + error.message };
   }
 };
-
